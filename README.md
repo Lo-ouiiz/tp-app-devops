@@ -1,16 +1,21 @@
 # Gym Management System
 
+[![CI](https://github.com/Lo-ouiiz/tp-app-devops/actions/workflows/ci.yml/badge.svg)](https://github.com/Lo-ouiiz/tp-app-devops/actions)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Lo-ouiiz_tp-app-devops&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Lo-ouiiz_tp-app-devops)
+
 A complete fullstack gym management application built with modern web technologies.
 
-## 🏷️ Git Workflow & Conventions
+---
 
-### ✔ Git Rules
+## Git Workflow & Conventions
+
+### Git Rules
 - Main branches: `main`, `develop`  
 - Feature branches: `feature/<name>`  
 - Pull Requests required to merge into `develop`  
 - **No direct commits to `main` or `develop`**
 
-### ✔ Commit Convention
+### Commit Convention
 - Format: **Conventional Commits** → `type: description`  
 - Allowed types: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`  
 - Examples:
@@ -21,21 +26,62 @@ A complete fullstack gym management application built with modern web technologi
 ### ✔ Active Git Hooks
 - **pre-commit**: runs frontend + backend lint (blocks if code is not compliant)  
 - **commit-msg**: enforces commit message convention  
-- **pre-push**: builds frontend and checks for secrets using Gitleaks  
+- **pre-push**: builds frontend
 
-> 💡 Pre-push message:  
-> “Just because it commits doesn’t mean it deserves to be shared.”
+> Just because it commits doesn’t mean it deserves to be shared.
 
-### 🔹 Tip
-Before pushing, make sure your commits follow:
+### Tip
+Before pushing:
 
-"""
+```
 git commit -m "type: description"
 npm run lint:all
 npm run gitleaks
-"""
+```
 
-Otherwise, Husky will automatically block the commit or push.
+## CI / DevOps Pipeline
+
+### Continuous Integration
+
+This project uses GitHub Actions with a self-hosted runner.
+
+### Pipeline steps
+
+```
+┌──────────┐
+│   Lint   │  → frontend + backend
+└────┬─────┘
+     ↓
+┌──────────┐
+│  Build   │  → frontend + backend
+└────┬─────┘
+     ↓
+┌──────────┐
+│  Tests   │  → backend (Jest)
+└────┬─────┘
+     ↓
+┌────────────┐
+│ SonarCloud │ → Quality Gate
+└────────────┘
+```
+
+### Enforced rules
+
+- A PR cannot be merged if:
+  - Lint fails
+  - Build fails
+  - Tests fail
+  - SonarCloud Quality Gate fails
+
+### SonarCloud
+
+- Analyzes backend only
+- Checks:
+  - Bugs
+  - Vulnerabilities
+  - Code smells
+  - Maintainability
+  - Reliability
 
 ## Features
 
