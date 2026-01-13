@@ -2,6 +2,41 @@
 
 A complete fullstack gym management application built with modern web technologies.
 
+## 🏷️ Git Workflow & Conventions
+
+### ✔ Git Rules
+- Main branches: `main`, `develop`  
+- Feature branches: `feature/<name>`  
+- Pull Requests required to merge into `develop`  
+- **No direct commits to `main` or `develop`**
+
+### ✔ Commit Convention
+- Format: **Conventional Commits** → `type: description`  
+- Allowed types: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`  
+- Examples:
+  - `feat: add authentication`
+  - `fix: correct Postgres connection`
+  - `chore: update NestJS dependencies`
+
+### ✔ Active Git Hooks
+- **pre-commit**: runs frontend + backend lint (blocks if code is not compliant)  
+- **commit-msg**: enforces commit message convention  
+- **pre-push**: builds frontend and checks for secrets using Gitleaks  
+
+> 💡 Pre-push message:  
+> “Just because it commits doesn’t mean it deserves to be shared.”
+
+### 🔹 Tip
+Before pushing, make sure your commits follow:
+
+"""
+git commit -m "type: description"
+npm run lint:all
+npm run gitleaks
+"""
+
+Otherwise, Husky will automatically block the commit or push.
+
 ## Features
 
 ### User Features
