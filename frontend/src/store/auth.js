@@ -32,6 +32,7 @@ export const useAuthStore = defineStore('auth', () => {
       try {
         currentUser.value = JSON.parse(stored)
       } catch (e) {
+        console.error('Failed to parse stored user:', e)
         localStorage.removeItem('currentUser')
       }
     }
