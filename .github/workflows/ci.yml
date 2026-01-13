@@ -59,22 +59,19 @@ jobs:
     needs: test
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Install dependencies backend
-        working-directory: ./backend
-        run: npm install
-
-      - name: Run SonarCloud Scan
-        working-directory: ./backend
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          npx sonar-scanner \
-            -Dsonar.login=$SONAR_TOKEN \
-            -Dsonar.projectKey=Lo-ouiiz_tp-app-devops \
-            -Dsonar.organization=lo-ouiiz \
-            -Dsonar.sources=. \
-            -Dsonar.language=js \
-            -Dsonar.sourceEncoding=UTF-8 \
+        with:
+          projectBaseDir: backend
+          args: >
+            -Dsonar.projectKey=Lo-ouiiz_tp-app-devops
+            -Dsonar.organization=lo-ouiiz
+            -Dsonar.sources=.
+            -Dsonar.sourceEncoding=UTF-8
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
