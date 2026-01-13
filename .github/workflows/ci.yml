@@ -78,3 +78,4 @@ jobs:
           -D"sonar.sources=backend/src"
           -D"sonar.host.url=https://sonarcloud.io"
           -D"sonar.login=${{ secrets.SONAR_TOKEN }}"
+          -X
