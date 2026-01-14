@@ -23,7 +23,7 @@ A complete fullstack gym management application built with modern web technologi
   - `fix: correct Postgres connection`
   - `chore: update NestJS dependencies`
 
-### ✔ Active Git Hooks
+### Active Git Hooks
 - **pre-commit**: runs frontend + backend lint (blocks if code is not compliant)  
 - **commit-msg**: enforces commit message convention  
 - **pre-push**: builds frontend
@@ -155,6 +155,47 @@ This project uses GitHub Actions with a self-hosted runner.
    - Frontend: http://localhost:8080
    - Backend API: http://localhost:3000
    - Database: localhost:5432
+
+## Docker Setup
+
+### Prerequisites
+- Docker and Docker Compose installed
+- `.env` file configured at the root
+- GitHub Actions secrets for CI/CD:
+  - `GHCR_PAT` → to push Docker images to GitHub Container Registry
+  - `SONAR_TOKEN` → for SonarCloud
+
+### Start the Environment
+To launch the full stack application via Docker Compose:
+
+```
+docker-compose up --build
+```
+
+### Accessible URLs
+- **Frontend:** [http://localhost:8080](http://localhost:8080)  
+- **Backend API:** [http://localhost:3000](http://localhost:3000)  
+- **PostgreSQL:** Local only (port 5432)
+
+### Docker Images (GitHub Container Registry)
+- **Backend:** `ghcr.io/<username>/cloudnative-backend:latest`  
+- **Frontend:** `ghcr.io/<username>/cloudnative-frontend:latest`
+
+### Useful Commands
+
+```
+# Stop all containers
+docker-compose down
+
+# View logs for a specific service
+docker-compose logs -f [service-name]
+
+# Rebuild and relaunch a specific service
+docker-compose up --build [service-name]
+
+# Access PostgreSQL database
+docker exec -it gym-postgres psql -U postgres -d gymdb
+```
 
 ### Default Login Credentials
 
