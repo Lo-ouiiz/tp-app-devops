@@ -99,34 +99,26 @@ jobs:
       - name: Log in to GitHub Container Registry
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Build backend Docker image
-        run: docker build -t backend-ci ./backend
+      - name: Build Docker images
+        run: |
+          docker build -t backend-ci ./backend
+          docker build -t frontend-ci ./frontend
 
-      - name: Build frontend Docker image
-        run: docker build -t frontend-ci ./frontend
-
-      - name: Test backend container
+      - name: Test Docker containers
         run: |
           docker run -d --name backend-test backend-ci
-          sleep 5
-          docker ps | grep backend-test
-          docker stop backend-test
-          docker rm backend-test
-
-      - name: Test frontend container
-        run: |
           docker run -d --name frontend-test frontend-ci
           sleep 5
+          docker ps | grep backend-test
           docker ps | grep frontend-test
-          docker stop frontend-test
-          docker rm frontend-test
+          docker stop backend-test frontend-test
+          docker rm backend-test frontend-test
 
-      - name: Tag & push backend
+      - name: Tag & push images to GHCR
         run: |
-          docker tag backend-ci ghcr.io/${{ github.repository_owner }}/cloudnative-backend:${{ github.sha }}
-          docker push ghcr.io/${{ github.repository_owner }}/cloudnative-backend:${{ github.sha }}
+          REPO_OWNER_LOWER=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
+          docker tag backend-ci ghcr.io/$REPO_OWNER_LOWER/cloudnative-backend:${GITHUB_SHA}
+          docker tag frontend-ci ghcr.io/$REPO_OWNER_LOWER/cloudnative-frontend:${GITHUB_SHA}
+          docker push ghcr.io/$REPO_OWNER_LOWER/cloudnative-backend:${GITHUB_SHA}
+          docker push ghcr.io/$REPO_OWNER_LOWER/cloudnative-frontend:${GITHUB_SHA}
 
-      - name: Tag & push frontend
-        run: |
-          docker tag frontend-ci ghcr.io/${{ github.repository_owner }}/cloudnative-frontend:${{ github.sha }}
-          docker push ghcr.io/${{ github.repository_owner }}/cloudnative-frontend:${{ github.sha }}
