@@ -11,6 +11,7 @@ on:
 jobs:
 
   lint:
+    name: Lint
     runs-on: self-hosted
     steps:
       - name: Checkout code
@@ -25,6 +26,7 @@ jobs:
         run: npm install && npm run lint
 
   build:
+    name: Build
     runs-on: self-hosted
     needs: lint
     steps:
@@ -40,6 +42,7 @@ jobs:
         run: npm install && npm run build
 
   test:
+    name: Tests
     runs-on: self-hosted
     needs: build
     steps:
@@ -55,7 +58,7 @@ jobs:
         run: npm run test
 
   sonar:
-    name: SonarCloud
+    name: Sonarcloud
     runs-on: self-hosted
     needs: test
     steps:
@@ -87,11 +90,11 @@ jobs:
             -Dsonar.sourceEncoding=UTF-8
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             -X
-  
+
   docker:
     name: Docker build & push
     runs-on: self-hosted
-    needs: build
+    needs: sonar
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -122,3 +125,16 @@ jobs:
           docker push ghcr.io/$REPO_OWNER_LOWER/cloudnative-backend:${GITHUB_SHA}
           docker push ghcr.io/$REPO_OWNER_LOWER/cloudnative-frontend:${GITHUB_SHA}
 
+  deploy:
+    name: Deploy with docker compose
+    runs-on: self-hosted
+    needs: docker
+
+    if: github.ref == 'refs/heads/develop'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run deployment script
+        run: chmod +x scripts/deploy.sh && ./scripts/deploy.sh
