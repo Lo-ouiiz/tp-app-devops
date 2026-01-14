@@ -87,3 +87,46 @@ jobs:
             -Dsonar.sourceEncoding=UTF-8
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             -X
+  
+  docker:
+    name: Docker build & push
+    runs-on: self-hosted
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build backend Docker image
+        run: docker build -t backend-ci ./backend
+
+      - name: Build frontend Docker image
+        run: docker build -t frontend-ci ./frontend
+
+      - name: Test backend container
+        run: |
+          docker run -d --name backend-test backend-ci
+          sleep 5
+          docker ps | grep backend-test
+          docker stop backend-test
+          docker rm backend-test
+
+      - name: Test frontend container
+        run: |
+          docker run -d --name frontend-test frontend-ci
+          sleep 5
+          docker ps | grep frontend-test
+          docker stop frontend-test
+          docker rm frontend-test
+
+      - name: Tag & push backend
+        run: |
+          docker tag backend-ci ghcr.io/${{ github.repository_owner }}/cloudnative-backend:${{ github.sha }}
+          docker push ghcr.io/${{ github.repository_owner }}/cloudnative-backend:${{ github.sha }}
+
+      - name: Tag & push frontend
+        run: |
+          docker tag frontend-ci ghcr.io/${{ github.repository_owner }}/cloudnative-frontend:${{ github.sha }}
+          docker push ghcr.io/${{ github.repository_owner }}/cloudnative-frontend:${{ github.sha }}
