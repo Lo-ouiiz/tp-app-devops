@@ -62,7 +62,15 @@ This project uses GitHub Actions with a self-hosted runner.
      ↓
 ┌────────────┐
 │ SonarCloud │ → Quality Gate
-└────────────┘
+└────┬───────┘
+     ↓
+┌──────────┐
+│  Docker  │ → build & push
+└────┬─────┘
+     ↓
+┌──────────┐
+│  Deploy  │ → with docker compose
+└──────────┘
 ```
 
 ### Enforced rules
@@ -82,6 +90,62 @@ This project uses GitHub Actions with a self-hosted runner.
   - Code smells
   - Maintainability
   - Reliability
+
+## Automated Local Deployment
+
+This project includes an automated deployment stage as part of the CI/CD pipeline using Docker Compose on a self-hosted runner.
+
+### How it works
+
+After the CI pipeline successfully:
+
+- Lints the code
+- Builds the applications
+- Runs tests
+- Passes the SonarCloud Quality Gate
+- Builds Docker images
+- Pushes them to GitHub Container Registry (GHCR)
+
+A deploy job is automatically triggered to:
+- Stop the currently running containers
+- Pull the latest images from GHCR
+- Restart the full stack using Docker Compose
+- Deployment flow
+
+### Requirements
+
+The automated deployment requires:
+- A self-hosted runner running on the deployment machine
+- Docker and Docker Compose installed on this machine
+- GitHub Actions secrets configured:
+- Registry access (GHCR)
+- Application environment variables (database, API URLs, etc.)
+- Access to GitHub Container Registry
+
+### Environment variables
+
+The deployment relies on environment variables injected via GitHub Actions secrets (not committed in the repository).
+They are used by Docker Compose to configure:
+- PostgreSQL credentials
+- Backend database connection
+- Frontend API URL
+- Seeding behavior
+
+### Branch policy
+
+⚠️ Automatic deployment is only enabled on the develop branch (for this school project).
+
+- Pull Requests → run CI only (no deployment)
+- Push / merge to develop → triggers full pipeline including deployment
+- main branch → no automatic deployment
+
+This ensures that only validated code reaching develop is deployed automatically.
+
+### Why this setup?
+
+- Guarantees that only tested and validated images are deployed
+- Makes deployment fully reproducible and idempotent
+- Simulates a real-world CI/CD pipeline with automatic delivery
 
 ## Features
 
