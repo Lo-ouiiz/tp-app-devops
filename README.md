@@ -3,7 +3,24 @@
 [![CI](https://github.com/Lo-ouiiz/tp-app-devops/actions/workflows/ci.yml/badge.svg)](https://github.com/Lo-ouiiz/tp-app-devops/actions)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Lo-ouiiz_tp-app-devops&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Lo-ouiiz_tp-app-devops)
 
-A complete fullstack gym management application built with modern web technologies.
+A fullstack gym management application built with modern web technologies, featuring **automated CI/CD** with **blue/green deployment**.
+
+---
+
+## Table of Contents
+
+1. [Git Workflow & Conventions](#git-workflow--conventions)
+2. [CI/CD Pipeline](#cicd-pipeline)
+3. [Blue/Green Deployment](#bluegreen-deployment)
+4. [Features](#features)
+5. [Tech Stack](#tech-stack)
+6. [Quick Start](#quick-start)
+7. [Docker Setup](#docker-setup)
+8. [Project Structure](#project-structure)
+9. [API Endpoints](#api-endpoints)
+10. [Contributing](#contributing)
+11. [License](#license)
+12. [Support](#support)
 
 ---
 
@@ -24,40 +41,31 @@ A complete fullstack gym management application built with modern web technologi
   - `chore: update NestJS dependencies`
 
 ### Active Git Hooks
-- **pre-commit**: runs frontend + backend lint (blocks if code is not compliant)  
+- **pre-commit**: runs frontend + backend lint  
 - **commit-msg**: enforces commit message convention  
 - **pre-push**: builds frontend
 
 > Just because it commits doesn’t mean it deserves to be shared.
 
-### Tip
-Before pushing:
+---
 
-```
-git commit -m "type: description"
-npm run lint:all
-npm run gitleaks
-```
+## CI/CD Pipeline
 
-## CI / DevOps Pipeline
-
-### Continuous Integration
-
-This project uses GitHub Actions with a self-hosted runner.
+This project uses **GitHub Actions** on a self-hosted runner.
 
 ### Pipeline steps
 
 ```
 ┌──────────┐
-│   Lint   │  → frontend + backend
+│   Lint   │ → frontend + backend
 └────┬─────┘
      ↓
 ┌──────────┐
-│  Build   │  → frontend + backend
+│  Build   │ → frontend + backend
 └────┬─────┘
      ↓
 ┌──────────┐
-│  Tests   │  → backend (Jest)
+│  Tests   │ → backend (Jest)
 └────┬─────┘
      ↓
 ┌────────────┐
@@ -69,195 +77,140 @@ This project uses GitHub Actions with a self-hosted runner.
 └────┬─────┘
      ↓
 ┌──────────┐
-│  Deploy  │ → with docker compose
+│  Deploy  │ → with Docker Compose
 └──────────┘
 ```
 
-### Enforced rules
-
-- A PR cannot be merged if:
+### Rules
+- PR cannot be merged if:
   - Lint fails
   - Build fails
   - Tests fail
   - SonarCloud Quality Gate fails
 
-### SonarCloud
+- Automatic deployment occurs only on the **develop branch**.
 
-- Analyzes backend only
-- Checks:
-  - Bugs
-  - Vulnerabilities
-  - Code smells
-  - Maintainability
-  - Reliability
+---
 
-## Automated Local Deployment
+## Blue/Green Deployment
 
-This project includes an automated deployment stage as part of the CI/CD pipeline using Docker Compose on a self-hosted runner.
+This project implements a **Blue/Green deployment strategy** using **Docker Compose** and an **Nginx reverse proxy**.
 
-### How it works
+### Principle
+- **Blue** = currently active in production  
+- **Green** = new version (or vice versa)  
+- Only **one color receives user traffic**, both can run side-by-side.
 
-After the CI pipeline successfully:
+### Reverse Proxy
+- Listens on: `http://localhost`  
+- Routes traffic to active stack (**blue** or **green**) based on `ACTIVE_COLOR`:
 
-- Lints the code
-- Builds the applications
-- Runs tests
-- Passes the SonarCloud Quality Gate
-- Builds Docker images
-- Pushes them to GitHub Container Registry (GHCR)
+```
+[Client] --> [Reverse Proxy] --> [Blue]   (active version)
+                             \-> [Green]  (inactive / candidate version)
+```
 
-A deploy job is automatically triggered to:
-- Stop the currently running containers
-- Pull the latest images from GHCR
-- Restart the full stack using Docker Compose
-- Deployment flow
+### Deployment Workflow
+1. CI builds and pushes new Docker images  
+2. CI checks currently active color  
+3. Deploys new version on **inactive color**  
+4. Updates `ACTIVE_COLOR`  
+5. Restarts reverse proxy → traffic instantly switches  
+6. Old version still running → can rollback if needed
 
-### Requirements
+### Rollback
+1. Set `ACTIVE_COLOR` back to previous color  
+2. Restart reverse proxy  
+Traffic switches immediately **without downtime**.
 
-The automated deployment requires:
-- A self-hosted runner running on the deployment machine
-- Docker and Docker Compose installed on this machine
-- GitHub Actions secrets configured:
-- Registry access (GHCR)
-- Application environment variables (database, API URLs, etc.)
-- Access to GitHub Container Registry
-
-### Environment variables
-
-The deployment relies on environment variables injected via GitHub Actions secrets (not committed in the repository).
-They are used by Docker Compose to configure:
-- PostgreSQL credentials
-- Backend database connection
-- Frontend API URL
-- Seeding behavior
-
-### Branch policy
-
-⚠️ Automatic deployment is only enabled on the develop branch (for this school project).
-
-- Pull Requests → run CI only (no deployment)
-- Push / merge to develop → triggers full pipeline including deployment
-- main branch → no automatic deployment
-
-This ensures that only validated code reaching develop is deployed automatically.
-
-### Why this setup?
-
-- Guarantees that only tested and validated images are deployed
-- Makes deployment fully reproducible and idempotent
-- Simulates a real-world CI/CD pipeline with automatic delivery
+---
 
 ## Features
 
 ### User Features
-- **User Dashboard**: View stats, billing, and recent bookings
-- **Class Booking**: Book and cancel fitness classes
-- **Subscription Management**: View subscription details and billing
-- **Profile Management**: Update personal information
+- **Dashboard**: Stats, billing, and recent bookings  
+- **Class Booking**: Book/cancel fitness classes  
+- **Subscription Management**: View and manage subscriptions  
+- **Profile Management**: Update personal info
 
 ### Admin Features
-- **Admin Dashboard**: Overview of gym statistics and revenue
-- **User Management**: CRUD operations for users
-- **Class Management**: Create, update, and delete fitness classes
-- **Booking Management**: View and manage all bookings
+- **Admin Dashboard**: Overview of stats and revenue  
+- **User Management**: CRUD users  
+- **Class Management**: Create/update/delete classes  
+- **Booking Management**: Manage all bookings  
 - **Subscription Management**: Manage user subscriptions
 
-### Business Logic
-- **Capacity Management**: Classes have maximum capacity limits
-- **Time Conflict Prevention**: Users cannot book overlapping classes
-- **Cancellation Policy**: 2-hour cancellation policy (late cancellations become no-shows)
-- **Billing System**: Dynamic pricing with no-show penalties
-- **Subscription Types**: Standard (€30), Premium (€50), Student (€20)
+### Business Rules
+- Max capacity per class  
+- Prevent double-booking  
+- 2-hour cancellation policy  
+- Dynamic billing with no-show penalties  
+
+---
 
 ## Tech Stack
 
 ### Backend
-- **Node.js** with Express.js
-- **Prisma** ORM with PostgreSQL
-- **RESTful API** with proper error handling
-- **MVC Architecture** with repositories pattern
+- Node.js, Express.js  
+- PostgreSQL via Prisma ORM  
+- REST API  
+- MVC architecture with repositories
 
 ### Frontend
-- **Vue.js 3** with Composition API
-- **Pinia** for state management
-- **Vue Router** with navigation guards
-- **Responsive CSS** styling
+- Vue 3 + Composition API  
+- Pinia for state management  
+- Vue Router with guards  
+- Responsive CSS
 
 ### DevOps
-- **Docker** containerization
-- **Docker Compose** for orchestration
-- **PostgreSQL** database
-- **Nginx** for frontend serving
+- Docker + Docker Compose  
+- Nginx reverse proxy  
+- PostgreSQL database  
+- GitHub Actions for CI/CD
+
+---
 
 ## Quick Start
 
 ### Prerequisites
-- Docker and Docker Compose
-- Git
+- Docker & Docker Compose  
+- Git  
 
 ### Installation
+1. Clone repo
+```
+git clone <repository-url>
+cd gym-management-system
+```
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd gym-management-system
-   ```
+2. Setup env
+```
+cp .env.example .env
+```
 
-2. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Edit `.env` file if needed (default values should work for development).
-
-3. **Start the application**
-   ```bash
-   docker-compose up --build
-   ```
-
-4. **Access the application**
-   - Frontend: http://localhost:8080
-   - Backend API: http://localhost:3000
-   - Database: localhost:5432
-
-## Docker Setup
-
-### Prerequisites
-- Docker and Docker Compose installed
-- `.env` file configured at the root
-- GitHub Actions secrets for CI/CD:
-  - `GHCR_PAT` → to push Docker images to GitHub Container Registry
-  - `SONAR_TOKEN` → for SonarCloud
-
-### Start the Environment
-To launch the full stack application via Docker Compose:
-
+3. Start app
 ```
 docker-compose up --build
 ```
 
-### Accessible URLs
-- **Frontend:** [http://localhost:8080](http://localhost:8080)  
-- **Backend API:** [http://localhost:3000](http://localhost:3000)  
-- **PostgreSQL:** Local only (port 5432)
+4. Access
+- Frontend: http://localhost:8080  
+- Backend API: http://localhost:3000  
+- DB: localhost:5432
 
-### Docker Images (GitHub Container Registry)
-- **Backend:** `ghcr.io/<username>/cloudnative-backend:latest`  
-- **Frontend:** `ghcr.io/<username>/cloudnative-frontend:latest`
+---
 
-### Useful Commands
+## Docker Setup
 
+- GHCR images:
+  - Backend: `ghcr.io/lo-ouiiz/cloudnative-backend:<commit_sha>`  
+  - Frontend: `ghcr.io/lo-ouiiz/cloudnative-frontend:<commit_sha>`
+
+- Useful commands:
 ```
-# Stop all containers
 docker-compose down
-
-# View logs for a specific service
-docker-compose logs -f [service-name]
-
-# Rebuild and relaunch a specific service
-docker-compose up --build [service-name]
-
-# Access PostgreSQL database
+docker-compose logs -f [service]
+docker-compose up --build [service]
 docker exec -it gym-postgres psql -U postgres -d gymdb
 ```
 
@@ -297,8 +250,10 @@ gym-management-system/
 │   │   └── router/          # Vue router
 │   ├── Dockerfile
 │   └── nginx.conf
-└── docker-compose.yml
+└── docker-compose.*.yml
 ```
+
+---
 
 ## API Endpoints
 
@@ -336,54 +291,7 @@ gym-management-system/
 - `GET /api/dashboard/user/:userId` - Get user dashboard
 - `GET /api/dashboard/admin` - Get admin dashboard
 
-## Development
-
-### Local Development Setup
-
-1. **Backend Development**
-   ```bash
-   cd backend
-   npm install
-   npm run dev
-   ```
-
-2. **Frontend Development**
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
-
-3. **Database Setup**
-   ```bash
-   cd backend
-   npx prisma migrate dev
-   npm run seed
-   ```
-
-### Database Management
-
-- **View Database**: `npx prisma studio`
-- **Reset Database**: `npx prisma db reset`
-- **Generate Client**: `npx prisma generate`
-- **Run Migrations**: `npx prisma migrate deploy`
-
-### Useful Commands
-
-```bash
-# Stop all containers
-docker-compose down
-
-# View logs
-docker-compose logs -f [service-name]
-
-# Rebuild specific service
-docker-compose up --build [service-name]
-
-# Access database
-docker exec -it gym_db psql -U postgres -d gym_management
-```
-
+---
 ## Features in Detail
 
 ### Subscription System

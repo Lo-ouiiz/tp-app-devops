@@ -68,24 +68,28 @@ active_color.env
 ACTIVE_COLOR=blue
 ```
 
-This file is mounted into the Nginx container.
+If the file does not exist, it is automatically created by the deployment script with a default value (`blue`).
+
+This file is mounted into the Nginx container and also used as an environment file.
 
 Nginx uses this variable to route traffic to:
 
-* backend-blue / frontend-blue
-  OR
-* backend-green / frontend-green
+* backend-blue / frontend-blue  
+  OR  
+* backend-green / frontend-green  
 
 To switch version:
 
-* The CI updates the value of ACTIVE_COLOR
-* Then reloads Nginx:
+* The CI updates the value of `ACTIVE_COLOR`
+* Then restarts the reverse proxy container:
 
 ```
-docker exec reverse-proxy nginx -s reload
+docker compose restart reverse-proxy
 ```
 
-This causes an instant traffic switch with no downtime.
+When the container restarts, Nginx reads the new value and traffic is instantly routed to the new version.
+
+This causes an instant traffic switch with no visible downtime.
 
 ---
 
@@ -100,8 +104,8 @@ When a new version is deployed:
 
 1. The CI checks which color is active
 2. It deploys the new version on the inactive color
-3. It updates ACTIVE_COLOR
-4. It reloads Nginx
+3. It updates `ACTIVE_COLOR`
+4. It restarts the reverse proxy
 5. Traffic is now routed to the new version
 
 ---
@@ -110,8 +114,8 @@ When a new version is deployed:
 
 If the new version is broken:
 
-1. Set ACTIVE_COLOR back to the previous value
-2. Reload Nginx
+1. Set `ACTIVE_COLOR` back to the previous value
+2. Restart the reverse proxy container
 
 Traffic is instantly routed back to the previous version.
 
