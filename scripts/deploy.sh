@@ -26,6 +26,7 @@ docker compose -f docker-compose.base.yml -f docker-compose.${INACTIVE_COLOR}.ym
 echo "Updating active color to $INACTIVE_COLOR..."
 echo "ACTIVE_COLOR=$INACTIVE_COLOR" > active_color.env
 
-docker compose -f docker-compose.base.yml exec reverse-proxy nginx -s reload
+echo "Restarting reverse proxy..."
+docker compose -f docker-compose.base.yml restart reverse-proxy
 
 echo "Blue/Green deployment completed. Active color: $INACTIVE_COLOR"
