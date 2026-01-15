@@ -3,21 +3,21 @@ set -e
 
 cd "$(dirname "$0")/.."
 
+if [ ! -f active_color.env ]; then
+  echo "ACTIVE_COLOR=blue" > active_color.env
+fi
+
 REPO_OWNER_LOWER=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
 
 echo "Pulling latest images from registry..."
 docker pull ghcr.io/$REPO_OWNER_LOWER/cloudnative-backend:${GITHUB_SHA}
 docker pull ghcr.io/$REPO_OWNER_LOWER/cloudnative-frontend:${GITHUB_SHA}
 
-if [ -f active_color.env ]; then
-  source active_color.env
-  if [ "$ACTIVE_COLOR" = "blue" ]; then
-    INACTIVE_COLOR="green"
-  else
-    INACTIVE_COLOR="blue"
-  fi
-else
+source active_color.env
+if [ "$ACTIVE_COLOR" = "blue" ]; then
   INACTIVE_COLOR="green"
+else
+  INACTIVE_COLOR="blue"
 fi
 
 echo "Deploying $INACTIVE_COLOR version..."
