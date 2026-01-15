@@ -82,7 +82,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           projectBaseDir: backend
-          useDocker: false
           args: >
             -Dsonar.projectKey=Lo-ouiiz_tp-app-devops
             -Dsonar.organization=lo-ouiiz
@@ -134,13 +133,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Run deployment script
-        env:
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
-          SEED_DB: ${{ secrets.SEED_DB }}
-        run: chmod +x scripts/deploy.sh && ./scripts/deploy.sh
+      - name: Create .env file for deployment
+        run: |
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+          echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> .env
+          echo "SEED_DB=${{ secrets.SEED_DB }}" >> .env
 
+      - name: Run deployment script
+        run: chmod +x scripts/deploy.sh && ./scripts/deploy.sh
