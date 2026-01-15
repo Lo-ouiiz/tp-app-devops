@@ -3,14 +3,12 @@ set -e
 
 cd "$(dirname "$0")/.."
 
-echo "Stopping existing containers..."
-docker compose down
-
-echo "Pulling latest images from registry..."
+# Récupère l'image à déployer depuis la CI
 REPO_OWNER_LOWER=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
 
-docker pull ghcr.io/$REPO_OWNER_LOWER/cloudnative-backend:${GITHUB_SHA}
-docker pull ghcr.io/$REPO_OWNER_LOWER/cloudnative-frontend:${GITHUB_SHA}
+echo "Pulling latest images from registry..."
+docker pull ghcr.io/$REPO_OWNER_LOWER/cloudnative-backend:${COMMIT_SHA}
+docker pull ghcr.io/$REPO_OWNER_LOWER/cloudnative-frontend:${COMMIT_SHA}
 
 # Determine inactive color
 if [ -f active_color.env ]; then
