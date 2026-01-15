@@ -7,8 +7,8 @@ cd "$(dirname "$0")/.."
 REPO_OWNER_LOWER=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
 
 echo "Pulling latest images from registry..."
-docker pull ghcr.io/$REPO_OWNER_LOWER/cloudnative-backend:${COMMIT_SHA}
-docker pull ghcr.io/$REPO_OWNER_LOWER/cloudnative-frontend:${COMMIT_SHA}
+docker pull ghcr.io/$REPO_OWNER_LOWER/cloudnative-backend:${GITHUB_SHA}
+docker pull ghcr.io/$REPO_OWNER_LOWER/cloudnative-frontend:${GITHUB_SHA}
 
 # Determine inactive color
 if [ -f active_color.env ]; then
