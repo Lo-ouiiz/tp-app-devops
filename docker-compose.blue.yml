@@ -1,0 +1,16 @@
+services:
+  backend-blue:
+    image: ghcr.io/lo-ouiiz/cloudnative-backend:${COMMIT_SHA}
+    container_name: gym-backend-blue
+    env_file:
+      - .env
+    networks:
+      - gym-network
+
+  frontend-blue:
+    image: ghcr.io/lo-ouiiz/cloudnative-frontend:${COMMIT_SHA}
+    container_name: gym-frontend-blue
+    env_file:
+      - .env
+    networks:
+      - gym-network
