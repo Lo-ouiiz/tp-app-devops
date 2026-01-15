@@ -128,6 +128,7 @@ jobs:
     name: Deploy with docker compose
     runs-on: self-hosted
     needs: docker
+    if: github.ref == 'refs/heads/develop'
 
     steps:
       - name: Checkout code
