@@ -4,6 +4,8 @@ services:
     container_name: gym-backend-blue
     env_file:
       - .env
+    environment:
+      NODE_ENV: production
     networks:
       - gym-network
 
@@ -12,5 +14,7 @@ services:
     container_name: gym-frontend-blue
     env_file:
       - .env
+    environment:
+      VITE_API_URL=http://backend-blue:3000
     networks:
       - gym-network
