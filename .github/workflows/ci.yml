@@ -134,4 +134,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run deployment script
-        run: chmod +x scripts/deploy.sh && ./scripts/deploy.sh
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          SEED_DB: ${{ secrets.SEED_DB }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: chmod +x scripts/deploy.sh && ./scripts/deploy.sh  

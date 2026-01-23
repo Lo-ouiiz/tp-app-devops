@@ -33,8 +33,8 @@ echo "Deploying $INACTIVE_COLOR stack..."
 
 REPO_OWNER_LOWER=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
 
-docker pull ghcr.io/$REPO_OWNER_LOWER/cloudnative-backend:${GITHUB_SHA}
-docker pull ghcr.io/$REPO_OWNER_LOWER/cloudnative-frontend:${GITHUB_SHA}
+docker pull ghcr.io/$REPO_OWNER_LOWER/cloudnative-backend:${COMMIT_SHA}
+docker pull ghcr.io/$REPO_OWNER_LOWER/cloudnative-frontend:${COMMIT_SHA}
 
 docker compose -f docker-compose.base.yml -f docker-compose.${INACTIVE_COLOR}.yml up -d
 
