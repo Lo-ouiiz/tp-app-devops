@@ -18,8 +18,8 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
-    environment:
-      ACTIVE_COLOR: ${ACTIVE_COLOR:-blue}
+    env_file:
+      - active_color.env
     depends_on:
       - postgres
     networks:
