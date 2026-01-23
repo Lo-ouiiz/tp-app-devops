@@ -133,15 +133,5 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Create .env file for deployment
-        run: |
-          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
-          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
-          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
-          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
-          echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> .env
-          echo "SEED_DB=${{ secrets.SEED_DB }}" >> .env
-          echo "COMMIT_SHA=${GITHUB_SHA}" >> .env
-
       - name: Run deployment script
         run: chmod +x scripts/deploy.sh && ./scripts/deploy.sh

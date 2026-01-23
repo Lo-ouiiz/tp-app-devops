@@ -3,6 +3,17 @@ set -e
 
 cd "$(dirname "$0")/.."
 
+if [ ! -f .env ]; then
+  echo "Generating .env file..."
+  echo "POSTGRES_USER=${POSTGRES_USER}" > .env
+  echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" >> .env
+  echo "POSTGRES_DB=${POSTGRES_DB}" >> .env
+  echo "DATABASE_URL=${DATABASE_URL}" >> .env
+  echo "VITE_API_URL=${VITE_API_URL}" >> .env
+  echo "SEED_DB=${SEED_DB}" >> .env
+  echo "COMMIT_SHA=${COMMIT_SHA}" >> .env
+fi
+
 if [ -f active_color.env ]; then
   source active_color.env
 else
