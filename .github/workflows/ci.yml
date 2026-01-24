@@ -15,7 +15,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Lint frontend
         working-directory: ./frontend
@@ -31,7 +31,7 @@ jobs:
     needs: lint
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Build frontend
         working-directory: ./frontend
@@ -47,7 +47,7 @@ jobs:
   #   needs: build
   #   steps:
   #     - name: Checkout code
-  #       uses: actions/checkout@v3
+  #       uses: actions/checkout@v4
 
   #     - name: Install dependencies backend
   #       working-directory: ./backend
@@ -96,7 +96,7 @@ jobs:
     needs: build
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Log in to GitHub Container Registry
         run: echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
@@ -128,11 +128,11 @@ jobs:
     name: Deploy with docker compose
     runs-on: self-hosted
     needs: docker
-    if: github.ref == 'refs/heads/develop'
+    # if: github.ref == 'refs/heads/develop'
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Create .env file for deployment
         run: |
@@ -142,7 +142,6 @@ jobs:
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
           echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> .env
           echo "SEED_DB=${{ secrets.SEED_DB }}" >> .env
-          echo "COMMIT_SHA=${GITHUB_SHA}" >> .env
 
       - name: Run deployment script
         run: chmod +x scripts/deploy.sh && ./scripts/deploy.sh
