@@ -36,10 +36,8 @@ services:
       - gym-network
 
   promtail:
-    image: grafana/promtail:2.9.1
+    image: grafana/promtail:2.11.0
     container_name: monitoring-promtail
-    environment:
-      - DOCKER_API_VERSION=1.44
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
