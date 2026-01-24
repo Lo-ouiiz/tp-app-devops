@@ -36,7 +36,7 @@ services:
       - gym-network
 
   promtail:
-    image: grafana/promtail:2.11.0
+    image: grafana/promtail:2.9.17
     container_name: monitoring-promtail
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
