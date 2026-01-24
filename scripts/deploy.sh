@@ -1,20 +1,28 @@
 #!/bin/bash
 set -e
 
-echo "Stopping existing containers..."
-docker compose down
+echo "Creating network if not exists..."
+docker network create gym-network || true
 
-echo "Pulling latest images from registry..."
+echo "Stopping application..."
+docker compose down || true
+
+echo "Stopping monitoring (if exists)..."
+docker compose -f docker-compose.monitoring.yml down || true
+
+echo "Pulling application images..."
 REPO_OWNER_LOWER=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
 
 docker pull ghcr.io/$REPO_OWNER_LOWER/cloudnative-backend:${GITHUB_SHA}
 docker pull ghcr.io/$REPO_OWNER_LOWER/cloudnative-frontend:${GITHUB_SHA}
 
-echo "Starting containers..."
+echo "Starting application..."
 docker compose up -d
 
-echo "Deployment completed successfully!"
+echo "Starting monitoring..."
+docker compose -f docker-compose.monitoring.yml up -d
 
+echo "Deployment completed successfully!"
 
 # set -e
 
