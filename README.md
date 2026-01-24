@@ -3,7 +3,7 @@
 [![CI](https://github.com/Lo-ouiiz/tp-app-devops/actions/workflows/ci.yml/badge.svg)](https://github.com/Lo-ouiiz/tp-app-devops/actions)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Lo-ouiiz_tp-app-devops&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Lo-ouiiz_tp-app-devops)
 
-A fullstack gym management application built with modern web technologies, featuring **automated CI/CD** with **blue/green deployment**.
+A fullstack gym management application built with modern web technologies, featuring **automated CI/CD**.
 
 ---
 
@@ -14,13 +14,14 @@ A fullstack gym management application built with modern web technologies, featu
 3. [Blue/Green Deployment](#bluegreen-deployment)
 4. [Features](#features)
 5. [Tech Stack](#tech-stack)
-6. [Quick Start](#quick-start)
-7. [Docker Setup](#docker-setup)
-8. [Project Structure](#project-structure)
-9. [API Endpoints](#api-endpoints)
-10. [Contributing](#contributing)
-11. [License](#license)
-12. [Support](#support)
+6. [Monitoring Stack](#monitoring-stack)
+7. [Quick Start](#quick-start)
+8. [Docker Setup](#docker-setup)
+9. [Project Structure](#project-structure)
+10. [API Endpoints](#api-endpoints)
+11. [Contributing](#contributing)
+12. [License](#license)
+13. [Support](#support)
 
 ---
 
@@ -167,6 +168,45 @@ Traffic switches immediately **without downtime**.
 - Nginx reverse proxy  
 - PostgreSQL database  
 - GitHub Actions for CI/CD
+
+---
+
+## Monitoring Stack
+
+This project includes a full **monitoring stack** with **Prometheus**, **Grafana**, and **Loki/Promtail** to collect metrics and logs from the backend.
+
+### Launching the Monitoring Stack
+
+1. Make sure your Docker Compose environment is up:
+"""
+docker-compose up -d
+"""
+
+2. Start the monitoring stack:
+"""
+docker-compose -f docker-compose.monitoring.yml up -d
+"""
+> This will start:
+> - **Prometheus** → http://localhost:9090  
+> - **Grafana** → http://localhost:3001  
+> - **Loki** → internal, used by Promtail  
+> - **Promtail** → collects logs from `gym-backend` and forwards them to Loki
+
+3. Verify logs and metrics:
+"""
+docker-compose logs -f promtail
+docker-compose logs -f prometheus
+docker-compose logs -f grafana
+"""
+
+4. Access Grafana to explore metrics and logs:
+- Explore Loki logs: http://localhost:3001/explore  
+- View Prometheus metrics: http://localhost:3001/explore → select Prometheus data source
+
+### Notes
+- Logs are collected from the backend container via **Promtail**  
+- Metrics are scraped from `/metrics` endpoint of `gym-backend`  
+- Make sure you generate some traffic (API requests) so metrics and logs appear in dashboards
 
 ---
 
