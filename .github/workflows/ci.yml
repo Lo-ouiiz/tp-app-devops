@@ -142,6 +142,7 @@ jobs:
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
           echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> .env
           echo "SEED_DB=${{ secrets.SEED_DB }}" >> .env
+          echo "GITHUB_SHA=${{ github.sha }}" >> .env
 
       - name: Run deployment script
         run: chmod +x scripts/deploy.sh && ./scripts/deploy.sh

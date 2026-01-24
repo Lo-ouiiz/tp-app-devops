@@ -17,9 +17,7 @@ services:
       - gym-network
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ghcr.io/lo-ouiiz/cloudnative-backend:${GITHUB_SHA}
     container_name: gym-backend
     restart: unless-stopped
     env_file:
@@ -37,9 +35,7 @@ services:
       - gym-network
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: ghcr.io/lo-ouiiz/cloudnative-frontend:${GITHUB_SHA}
     container_name: gym-frontend
     restart: unless-stopped
     env_file:
@@ -56,4 +52,4 @@ volumes:
 
 networks:
   gym-network:
-    driver: bridge
+    external: true
